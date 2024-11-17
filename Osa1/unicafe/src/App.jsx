@@ -8,16 +8,22 @@ const Header = () => {
   )
 }
 
-const Content = ({feedback}) => {
+const Statistics = ({feedback}) => {
+  if (feedback[3] !== 0)
+    return (
+      <div>
+        <h1>statistics</h1>
+        <p>good {feedback[0]}</p>
+        <p>neutral {feedback[1]}</p>
+        <p>bad {feedback[2]}</p>
+        <p>all {feedback[3]}</p>
+        <p>average {feedback[4]}</p>
+        <p>positive {feedback[5]} %</p>
+      </div>
+    )
   return (
     <div>
-      <h1>statistics</h1>
-      <p>good {feedback[0]}</p>
-      <p>neutral {feedback[1]}</p>
-      <p>bad {feedback[2]}</p>
-      <p>all {feedback[3]}</p>
-      <p>average {feedback[4]}</p>
-      <p>positive {feedback[5]} %</p>
+      <p>No feedback given</p>
     </div>
   )
 }
@@ -39,7 +45,6 @@ const  feedback = [good, neutral, bad, total, average, positive]
 const  addGood = () => {
   const updatedGood = good + 1
   const updatedTotal = total + 1
-  const updatedPositive = positive + 1
   setGood(good + 1)
   setTotal(total + 1)
   setAverage((updatedGood - bad) / updatedTotal)
@@ -69,7 +74,7 @@ const  addBad = () => {
       <Button handleClick={addGood} text="good"/>
       <Button handleClick={addNeutral} text="neutral"/>
       <Button handleClick={addBad} text="bad"/>
-      <Content feedback={feedback}/>
+      <Statistics feedback={feedback}/>
     </div>
   )
 }
