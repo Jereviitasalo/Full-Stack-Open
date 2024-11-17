@@ -13,18 +13,29 @@ const Statistics = ({feedback}) => {
     return (
       <div>
         <h1>statistics</h1>
-        <p>good {feedback[0]}</p>
-        <p>neutral {feedback[1]}</p>
-        <p>bad {feedback[2]}</p>
-        <p>all {feedback[3]}</p>
-        <p>average {feedback[4]}</p>
-        <p>positive {feedback[5]} %</p>
+        <StatisticLine text="good" value ={feedback[0]} />
+        <StatisticLine text="neutral" value ={feedback[1]} />
+        <StatisticLine text="bad" value ={feedback[2]} />
+        <StatisticLine text="all" value ={feedback[3]} />
+        <StatisticLine text="average" value ={feedback[4]} />
+        <StatisticLine text="positive" value ={feedback[5]} />
       </div>
     )
   return (
     <div>
       <p>No feedback given</p>
     </div>
+  )
+}
+
+const StatisticLine = (props) => {
+  if (props.text === "positive"){
+    return (
+      <p>{props.text} {props.value} %</p>
+    )
+  }
+  return (
+    <p>{props.text} {props.value}</p>
   )
 }
 
