@@ -9,33 +9,58 @@ const Header = () => {
 }
 
 const Statistics = ({feedback}) => {
-  if (feedback[3] !== 0)
+  if (feedback.all === 0) {
     return (
       <div>
-        <h1>statistics</h1>
-        <StatisticLine text="good" value ={feedback[0]} />
-        <StatisticLine text="neutral" value ={feedback[1]} />
-        <StatisticLine text="bad" value ={feedback[2]} />
-        <StatisticLine text="all" value ={feedback[3]} />
-        <StatisticLine text="average" value ={feedback[4]} />
-        <StatisticLine text="positive" value ={feedback[5]} />
+        <p>No feedback given</p>
       </div>
-    )
-  return (
-    <div>
-      <p>No feedback given</p>
-    </div>
-  )
-}
-
-const StatisticLine = (props) => {
-  if (props.text === "positive"){
-    return (
-      <p>{props.text} {props.value} %</p>
     )
   }
   return (
-    <p>{props.text} {props.value}</p>
+    <table>
+      <thead>
+        <tr>
+          <th><h1>statistics</h1></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <StatisticLine text="good" value ={feedback.good} />
+        </tr>
+        <tr>
+          <StatisticLine text="neutral" value ={feedback.neutral} />
+        </tr>
+        <tr>
+          <StatisticLine text="bad" value ={feedback.bad} />
+        </tr>
+        <tr>
+          <StatisticLine text="all" value ={feedback.all} />
+        </tr>
+        <tr>
+          <StatisticLine text="average" value ={feedback.average} />
+        </tr>
+        <tr>
+          <StatisticLine text="positive" value ={feedback.positive} />
+        </tr>
+      </tbody>
+    </table>
+  )
+}
+
+const StatisticLine = ({text, value}) => {
+  if (text === "positive"){
+    return (
+      <>
+        <td>{text}</td>
+        <td>{value} %</td>
+      </>
+    )
+  }
+  return (
+    <>
+    <td>{text}</td>
+    <td>{value}</td>
+    </>
   )
 }
 
@@ -50,8 +75,14 @@ const App = () => {
   const [average, setAverage] = useState(0)
   const [positive, setPositive] = useState(0)
 
-const  feedback = [good, neutral, bad, total, average, positive]
-
+const feedback = {
+  good: good,
+  neutral: neutral,
+  bad: bad,
+  all: total,
+  average: average,
+  positive: positive
+};
 
 const  addGood = () => {
   const updatedGood = good + 1
