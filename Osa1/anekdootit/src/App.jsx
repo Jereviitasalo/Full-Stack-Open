@@ -1,20 +1,32 @@
-import { useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 
-const Button = ({handleClick, text}) => <button onClick={handleClick}>{text}</button>
-
-const Content = ({anecdote}) => {
+const AnecdoteOfTheDay = ({anecdote, vote}) => {
   if (anecdote === 0) {
     return (
       null
     )
   }
   return (
-    <div>{anecdote}</div>
+    <>
+      <h1>Anecdote of the day</h1>
+      <p>{anecdote}</p>
+      <p>has {vote} votes</p>
+    </>
   )
 }
 
+const AnecdoteWithMostVotes = ({mostVotedAnecdote}) => {
+  return(
+    <div>
+      <h1>Anecdote with most votes</h1>
+      <p>{mostVotedAnecdote}</p>
+    </div>
+  )
+}
+
+const Button = ({handleClick, text}) => <button onClick={handleClick}>{text}</button>
+
 const App = () => {
-  const [ selected, setSelected ] = useState(0)
 
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -27,15 +39,29 @@ const App = () => {
     'The only way to go fast, is to go well.'
   ]
 
+  const [ selected, setSelected ] = useState(0)
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
+  const [mostVoted, setMostVoted] = useState(0)
+
   const setAnecdote = () => {
     const randomIndex = Math.floor(Math.random() * anecdotes.length)
-    setSelected(anecdotes[randomIndex])
+    setSelected(randomIndex)
+  }
+
+  const vote = () => {
+    const copyVotes = [...votes]
+    copyVotes[selected] += 1
+    const mostVotes = copyVotes.indexOf(Math.max(...copyVotes)) // Gets index of most voted anecdote
+    setVotes(copyVotes)
+    setMostVoted(mostVotes)
   }
 
   return (
     <div>
-      <Content anecdote={selected}/>
+      <AnecdoteOfTheDay anecdote={anecdotes[selected]} vote={votes[selected]}/>
+      <Button handleClick={vote} text={"vote"}/>
       <Button handleClick={setAnecdote} text={"next anecdote"}/>
+      <AnecdoteWithMostVotes mostVotedAnecdote={anecdotes[mostVoted]}/>
     </div>
   )
 }
