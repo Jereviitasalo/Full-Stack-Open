@@ -17,9 +17,9 @@ const Filter = ({searchString, handleStringChange}) => {
   )
 }
 
-const Persons = (props) => {
+const Persons = ({filteredPersons}) => {
   return (
-    props.filteredPersons.map(element =>
+    filteredPersons.map(element =>
       <div key={element.name}>
         {element.name} {element.number}
       </div>
