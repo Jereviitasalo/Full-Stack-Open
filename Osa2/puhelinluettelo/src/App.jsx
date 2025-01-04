@@ -27,11 +27,34 @@ const Persons = ({filteredPersons, removeName}) => {
   )
 )}
 
+const Notification = ({message, error}) => {
+  const messageStyle = {
+    color: error ? 'red' : 'green',
+    backgroundColor: 'grey',
+    border: `1px solid ${error ? 'red' : 'green'}`,
+    borderRadius: 5,
+    marginBottom: 5,
+    padding: 5,
+    fontSize: 24
+  }
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div style={messageStyle}>
+      {message}
+    </div>
+  )
+}
+
 const App = () => {
-  const [persons, setPersons] = useState([]) 
+  const [ persons, setPersons] = useState([]) 
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ searchString, setSearchString ] = useState('')
+  const [ message, setMessage] = useState(null)
+  const [ error, setError] = useState(false)
 
   useEffect(() => {
     personService
@@ -54,15 +77,29 @@ const App = () => {
         // Update object to db.json/server
         personService
           .update(personExists.id, personObject)
-          .then(response => setPersons(persons.map(person => person.id === personExists.id ? response : person)))
+          .then(response => {
+            setPersons(persons.map(person => person.id === personExists.id ? response : person))
+            setMessage(`Added ${personExists.name}`)
+            setTimeout(() => setMessage(null), 5000)
+          })
+          .catch(error => {
+            setError(true)
+            setMessage(`Information of ${personExists.name} has alreade been removed from server`)
+            setTimeout(() => setMessage(null), 5000)
+          })
       }
     }
     else {
       // Add object to db.json/server
       personService
         .create(personObject)
-        .then(response => {setPersons(persons.concat(response))})
+        .then(response => {
+          setPersons(persons.concat(response))
+          setMessage(`Added ${response.name}`)
+          setTimeout(() => setMessage(null), 5000)
+        })
     }
+
     setNewName("")
     setNewNumber("")
   }
@@ -74,6 +111,8 @@ const App = () => {
       .remove(id)
       .then(() => {
         setPersons(persons.filter(person => person.id !== id))
+        setMessage(`Removed ${person.name}`)
+        setTimeout(() => setMessage(null), 5000)
         setNewName("")
         setNewNumber("")
       }) 
@@ -85,6 +124,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      
+      <Notification message={message} error={error}/>
 
       <Filter handleStringChange={handleStringChange} searchString={searchString}/>
 
