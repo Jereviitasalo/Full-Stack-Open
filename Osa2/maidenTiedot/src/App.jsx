@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react'
 import countryInfoService from './services/countryInfoService'
-
+import weatherService from './services/weatherService'
 
 const FilteredCountryList = ({countries}) => {
+  const [ country, setCountry] = useState(null)
+
+  if (country) {
+    return (
+      <div>
+        <SpecificCountry countryName={country}/>
+      </div>
+    )
+  }
+
   if (countries.length > 10) {
     return (
       <div>
@@ -20,7 +30,7 @@ const FilteredCountryList = ({countries}) => {
   return (
     <div>
       <ul>
-        {countries.map(country => <li key={country}>{country}</li>)}
+        {countries.map(country => <li key={country}>{country} <button onClick={() => setCountry(country)}>Show</button></li>)}
       </ul>
     </div>
   )
@@ -28,32 +38,63 @@ const FilteredCountryList = ({countries}) => {
 
 const SpecificCountry = ({countryName}) => {
   const [countryInfo, setCountryInfo] = useState({})
+  const [ weatherInfo, setWeatherInfo] = useState(null)
 
-  useEffect(() => {
-    countryInfoService
-    .getCountryByName(countryName)
-    .then(response => {
+  const getAllData = async () => {
+    try {
+      const countryData = await countryInfoService.getCountryByName(countryName)
       const countryInfoObject = {
-        name: response.name.common,
-        capital: response.capital,
-        area: response.area,
-        languages: Object.values(response.languages),
-        flag: response.flags.png
+        name: countryData.name.common,
+        capital: countryData.capital,
+        area: countryData.area,
+        languages: Object.values(countryData.languages),
+        flag: countryData.flags.png,
+        latlng: countryData.capitalInfo.latlng
       }
       setCountryInfo(countryInfoObject)
-    })
+
+      const weatherData = await weatherService.getWeather(countryInfoObject.latlng)
+      const weatherInfoObject = {
+        temperature: weatherData.main.temp,
+        wind: weatherData.wind.speed,
+        weatherIconUrl: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`
+      }
+      setWeatherInfo(weatherInfoObject)
+
+    } catch (error) {console.log(error)}
+  }
+
+  useEffect(() => {
+    getAllData()
   }, [])
 
   return (
     <div>
-      <h1>{countryInfo.name}</h1>
-      <p style={{margin: 0}}>Capital {countryInfo.capital}</p>
-      <p style={{margin: 0}}>Area {countryInfo.area}</p>
-      <p style={{fontWeight: 'bold'}}>Languages:</p>
-      <ul>
-        {countryInfo.languages && countryInfo.languages.map((language, index) => <li key={index}>{language}</li>)}
-      </ul>
-      <img src={countryInfo.flag} alt={`Image of a flag of ${countryInfo.name}`} width='150'/>
+      {countryInfo ? (
+        <>
+          <h1>{countryInfo.name}</h1>
+          <p style={{margin: 0}}>Capital {countryInfo.capital}</p>
+          <p style={{margin: 0}}>Area {countryInfo.area}</p>
+          <p style={{fontWeight: 'bold'}}>Languages:</p>
+          <ul>
+            {countryInfo.languages && countryInfo.languages.map((language, index) => <li key={index}>{language}</li>)}
+          </ul>
+          <img src={countryInfo.flag} alt={`Image of a flag of ${countryInfo.name}`} width='150'/>
+        </>
+      ) : (
+        <p>Loading country data...</p>
+      )}
+      
+      <h2>Weather in {countryInfo.capital}</h2>
+      {weatherInfo ? (
+        <>
+          <p>Temperature {Math.round((weatherInfo.temperature - 273.15) * 100) / 100} celcius</p>
+          <img src={weatherInfo.weatherIconUrl} alt="" />
+          <p>Wind {weatherInfo.wind} m/s</p>
+        </>
+      ) : (
+        <p>Loading weather data...</p>
+      )}
     </div>
   )
 }
